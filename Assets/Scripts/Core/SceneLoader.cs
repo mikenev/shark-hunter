@@ -2,6 +2,7 @@ using UnityEngine.SceneManagement;
 
 public static class SceneLoader
 {
+    public const string Title = "Title";
     public const string SeaMap = "SeaMap";
     public const string Dive = "Dive";
     public const string SharkFight = "SharkFight";

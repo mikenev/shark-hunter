@@ -58,6 +58,7 @@ public class DiverController : MonoBehaviour
         if (canFire && harpoonSprite != null && GameInput.FirePressed && Time.time >= nextFire)
         {
             nextFire = Time.time + FireCooldown;
+            AudioManager.Play(Sfx.Fire);
             Harpoon.Spawn(harpoonSprite, (Vector2)transform.position + Vector2.right * (facing * 0.6f), facing);
         }
     }

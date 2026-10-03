@@ -21,6 +21,14 @@ public class GameHud : MonoBehaviour
         center.fontSize = fontSize;
 
         float line = fontSize * 1.6f;
+
+        if (Time.time < gs.MessageUntil)
+        {
+            Shadowed(new Rect(0, Screen.height * 0.3f, Screen.width, line * 1.5f), gs.MessageText, center);
+        }
+
+        if (!gs.HudVisible) return;
+
         string stats = $"HP {gs.Health}/{GameState.MaxHealth}   SCORE {gs.Score}   CONCH {gs.Conches}/{GameState.ConchesNeeded}";
         Shadowed(new Rect(10, 6, Screen.width, line), stats, label);
 
@@ -37,11 +45,6 @@ public class GameHud : MonoBehaviour
             var r = new Rect((Screen.width - w) / 2f, Screen.height - fontSize * 2.5f, w, fontSize * 0.9f);
             Shadowed(new Rect(r.x, r.y - line, w, line), "SHARK", center);
             Bar(r, gs.BossHealth01, new Color(0.85f, 0.15f, 0f));
-        }
-
-        if (Time.time < gs.MessageUntil)
-        {
-            Shadowed(new Rect(0, Screen.height * 0.3f, Screen.width, line * 1.5f), gs.MessageText, center);
         }
     }
 

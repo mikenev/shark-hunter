@@ -31,6 +31,17 @@ public static class GameInput
         }
     }
 
+    public static bool StartPressed
+    {
+        get
+        {
+            var k = Keyboard.current;
+            if (k != null && k.enterKey.wasPressedThisFrame) return true;
+            var g = Gamepad.current;
+            return FirePressed || (g != null && g.startButton.wasPressedThisFrame);
+        }
+    }
+
     public static bool FirePressed
     {
         get

@@ -55,6 +55,7 @@ public class SharkBoss : MonoBehaviour
                 {
                     state = State.Telegraph;
                     timer = 0.7f;
+                    AudioManager.Play(Sfx.Warning);
                     if (target != null)
                     {
                         dir = target.position.x > p.x ? 1 : -1;
@@ -67,7 +68,11 @@ public class SharkBoss : MonoBehaviour
                 blinkRed = (int)(Time.time * 12f) % 2 == 0;
                 p.y = Mathf.MoveTowards(p.y, targetY, 6f * dt);
                 timer -= dt;
-                if (timer <= 0f) state = State.Charge;
+                if (timer <= 0f)
+                {
+                    state = State.Charge;
+                    AudioManager.Play(Sfx.Charge);
+                }
                 break;
 
             case State.Charge:
@@ -120,6 +125,7 @@ public class SharkBoss : MonoBehaviour
 
         health -= damage;
         flashUntil = Time.time + 0.1f;
+        AudioManager.Play(Sfx.SharkHit);
         GameState.Instance.AddScore(50);
 
         if (health <= 0)

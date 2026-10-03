@@ -18,6 +18,7 @@ public class GameState : MonoBehaviour
     public int Score { get; private set; }
     public int Conches => collected.Count;
     public bool Ending { get; private set; }
+    public bool HudVisible { get; private set; } = true;
 
     // Set by scene objects, read by the HUD.
     public float Oxygen;
@@ -79,6 +80,7 @@ public class GameState : MonoBehaviour
         OxygenActive = false;
         BossHealth01 = -1f;
         invulnerableUntil = 0f;
+        HudVisible = scene.name != SceneLoader.Title;
 
         switch (scene.name)
         {
@@ -109,6 +111,7 @@ public class GameState : MonoBehaviour
     public void Collect(string id)
     {
         if (!collected.Add(id)) return;
+        AudioManager.Play(Sfx.Collect);
         AddScore(100);
         ShowMessage(Conches >= ConchesNeeded
             ? "ALL CONCHES! RETURN TO THE BOAT"
@@ -129,7 +132,8 @@ public class GameState : MonoBehaviour
         Health = Mathf.Max(0, Health - amount);
         invulnerableUntil = Time.time + InvulnerableSeconds;
 
-        if (Health <= 0) StartCoroutine(EndRoutine("GAME OVER", 2.5f));
+        if (Health <= 0) StartCoroutine(EndRoutine("GAME OVER", 2.5f, Sfx.GameOver));
+        else AudioManager.Play(Sfx.PlayerHurt);
         return true;
     }
 
@@ -137,15 +141,17 @@ public class GameState : MonoBehaviour
     {
         if (Ending) return;
         AddScore(1000);
-        StartCoroutine(EndRoutine($"THE SHARK IS DEAD!  SCORE {Score}", 4f));
+        StartCoroutine(EndRoutine($"THE SHARK IS DEAD!  SCORE {Score}", 4f, Sfx.Win));
     }
 
-    IEnumerator EndRoutine(string text, float seconds)
+    IEnumerator EndRoutine(string text, float seconds, Sfx stinger)
     {
         Ending = true;
         ShowMessage(text, seconds + 1f);
+        AudioManager.StopMusic();
+        AudioManager.Play(stinger);
         yield return new WaitForSeconds(seconds);
         ResetGame();
-        SceneLoader.Load(SceneLoader.SeaMap);
+        SceneLoader.Load(SceneLoader.Title);
     }
 }

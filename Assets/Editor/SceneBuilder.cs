@@ -27,11 +27,12 @@ public static class SceneBuilder
         if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
 
         Directory.CreateDirectory(SceneDir);
+        BuildTitle();
         BuildSeaMap();
         BuildDive();
         BuildSharkFight();
 
-        EditorBuildSettings.scenes = new[] { "SeaMap", "Dive", "SharkFight" }
+        EditorBuildSettings.scenes = new[] { "Title", "SeaMap", "Dive", "SharkFight" }
             .Select(n => new EditorBuildSettingsScene(SceneDir + n + ".unity", true))
             .ToArray();
 
@@ -39,11 +40,43 @@ public static class SceneBuilder
         PlayerSettings.defaultScreenHeight = 720;
         PlayerSettings.fullScreenMode = FullScreenMode.Windowed;
 
-        EditorSceneManager.OpenScene(SceneDir + "SeaMap.unity");
-        Debug.Log("Built SeaMap, Dive and SharkFight scenes and added them to Build Settings.");
+        EditorSceneManager.OpenScene(SceneDir + "Title.unity");
+        Debug.Log("Built Title, SeaMap, Dive and SharkFight scenes and added them to Build Settings.");
     }
 
     // ---------------------------------------------------------------- scenes
+
+    static void BuildTitle()
+    {
+        var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+        const float w = 20f, h = 15f;
+
+        // Oversized water layers drift gently so their edges never show on screen.
+        var water = Tiled("Water", "tile_water", new Vector2(w / 2, h / 2), new Vector2(w + 4f, h + 4f), 0);
+        var drift = water.AddComponent<Patrol>();
+        drift.axis = Vector2.right;
+        drift.distance = 0.5f;
+        drift.speed = 0.3f;
+
+        var swell = Tiled("Swell", "tile_water", new Vector2(w / 2, h / 2 - 3f), new Vector2(w + 4f, h + 4f), 1,
+            new Color(1f, 1f, 1f, 0.35f));
+        var swellDrift = swell.AddComponent<Patrol>();
+        swellDrift.axis = Vector2.right;
+        swellDrift.distance = 0.7f;
+        swellDrift.speed = 0.5f;
+
+        var fin = Sprite("SharkFin", "fin", new Vector2(14f, 4.5f), 3);
+        var finPatrol = fin.AddComponent<Patrol>();
+        finPatrol.axis = Vector2.right;
+        finPatrol.distance = 3f;
+        finPatrol.speed = 0.8f;
+        finPatrol.spriteRenderer = fin.GetComponent<SpriteRenderer>();
+
+        new GameObject("TitleScreen").AddComponent<TitleScreen>();
+
+        Camera(null, Vector2.zero, new Vector2(w, h), DeepWater, new Vector2(w / 2, h / 2));
+        Save(scene, "Title");
+    }
 
     static void BuildSeaMap()
     {
